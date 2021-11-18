@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  php:
+    container_name: symfony-php
+    hostname: symfony-php
+    build: .
+    restart: "no" # unless-stopped
+    depends_on: 
+      - mysql
+    ports:
+      - 7777:8000
+    volumes:
+      - ./:/app
+    networks:
+      - bridge
+
+  mysql:
+    container_name: symfony-mysql
+    image: mysql:5.7
+    restart: "no" # unless-stopped
+    volumes:
+      - data_mysql:/var/lib/mysql
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    networks:
+      - bridge
+
+  phpmyadmin:
+    container_name: symfony-phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: "no" # unless-stopped
+    ports:
+      - 7778:80
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=${MYSQL_USER}
+      - PMA_PASSWORD=${MYSQL_PASSWORD}
+    networks:
+      - bridge
+
+networks:
+  bridge:
+
+volumes:
+  data_mysql:
